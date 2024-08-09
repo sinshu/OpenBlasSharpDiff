@@ -1,0 +1,230 @@
+﻿using System;
+using System.Numerics;
+using System.Runtime.InteropServices;
+
+namespace OpenBlasSharp
+{
+    public static partial class Lapack
+    {
+        /// <summary>
+        /// <para>
+        ///    DHSEQR computes the eigenvalues of a Hessenberg matrix H
+        ///    and, optionally, the matrices T and Z from the Schur decomposition
+        ///    H = Z T Z**T, where T is an upper quasi-triangular matrix (the
+        ///    Schur form), and Z is the orthogonal matrix of Schur vectors.
+        /// </para>
+        /// <para>
+        ///    Optionally Z may be postmultiplied into an input orthogonal
+        ///    matrix Q so that this routine can give the Schur factorization
+        ///    of a matrix A which has been reduced to the Hessenberg form H
+        ///    by the orthogonal matrix Q:  A = Q*H*Q**T = (QZ)*T*(QZ)**T.
+        /// </para>
+        /// </summary>
+        /// <param name="matrixLayout">
+        /// Specifies the matrix layout.
+        /// </param>
+        /// <param name="job">
+        /// [in] JOB is CHARACTER*1.
+        /// = &#39;E&#39;:  compute eigenvalues only;
+        /// = &#39;S&#39;:  compute eigenvalues and the Schur form T.
+        /// </param>
+        /// <param name="compz">
+        /// [in] COMPZ is CHARACTER*1.
+        /// = &#39;N&#39;:  no Schur vectors are computed;
+        /// = &#39;I&#39;:  Z is initialized to the unit matrix and the matrix Z
+        /// of Schur vectors of H is returned;
+        /// = &#39;V&#39;:  Z must contain an orthogonal matrix Q on entry, and
+        /// the product Q*Z is returned.
+        /// </param>
+        /// <param name="n">
+        /// [in] N is INTEGER.
+        /// The order of the matrix H.  N &gt;= 0.
+        /// </param>
+        /// <param name="ilo">
+        /// [in] ILO is INTEGER.
+        /// </param>
+        /// <param name="ihi">
+        /// [in] IHI is INTEGER.
+        /// 
+        /// It is assumed that H is already upper triangular in rows
+        /// and columns 1:ILO-1 and IHI+1:N. ILO and IHI are normally
+        /// set by a previous call to DGEBAL, and then passed to ZGEHRD
+        /// when the matrix output by DGEBAL is reduced to Hessenberg
+        /// form. Otherwise ILO and IHI should be set to 1 and N
+        /// respectively.  If N &gt; 0, then 1 &lt;= ILO &lt;= IHI &lt;= N.
+        /// If N = 0, then ILO = 1 and IHI = 0.
+        /// </param>
+        /// <param name="h">
+        /// [in,out] H is DOUBLE PRECISION array, dimension (LDH,N).
+        /// On entry, the upper Hessenberg matrix H.
+        /// On exit, if INFO = 0 and JOB = &#39;S&#39;, then H contains the
+        /// upper quasi-triangular matrix T from the Schur decomposition
+        /// (the Schur form); 2-by-2 diagonal blocks (corresponding to
+        /// complex conjugate pairs of eigenvalues) are returned in
+        /// standard form, with H(i,i) = H(i+1,i+1) and
+        /// H(i+1,i)*H(i,i+1) &lt; 0. If INFO = 0 and JOB = &#39;E&#39;, the
+        /// contents of H are unspecified on exit.  (The output value of
+        /// H when INFO &gt; 0 is given under the description of INFO
+        /// below.)
+        /// 
+        /// Unlike earlier versions of DHSEQR, this subroutine may
+        /// explicitly H(i,j) = 0 for i &gt; j and j = 1, 2, ... ILO-1
+        /// or j = IHI+1, IHI+2, ... N.
+        /// </param>
+        /// <param name="ldh">
+        /// [in] LDH is INTEGER.
+        /// The leading dimension of the array H. LDH &gt;= max(1,N).
+        /// </param>
+        /// <param name="wr">
+        /// [out] WR is DOUBLE PRECISION array, dimension (N).
+        /// </param>
+        /// <param name="wi">
+        /// [out] WI is DOUBLE PRECISION array, dimension (N).
+        /// 
+        /// The real and imaginary parts, respectively, of the computed
+        /// eigenvalues. If two eigenvalues are computed as a complex
+        /// conjugate pair, they are stored in consecutive elements of
+        /// WR and WI, say the i-th and (i+1)th, with WI(i) &gt; 0 and
+        /// WI(i+1) &lt; 0. If JOB = &#39;S&#39;, the eigenvalues are stored in
+        /// the same order as on the diagonal of the Schur form returned
+        /// in H, with WR(i) = H(i,i) and, if H(i:i+1,i:i+1) is a 2-by-2
+        /// diagonal block, WI(i) = sqrt(-H(i+1,i)*H(i,i+1)) and
+        /// WI(i+1) = -WI(i).
+        /// </param>
+        /// <param name="z">
+        /// [in,out] Z is DOUBLE PRECISION array, dimension (LDZ,N).
+        /// If COMPZ = &#39;N&#39;, Z is not referenced.
+        /// If COMPZ = &#39;I&#39;, on entry Z need not be set and on exit,
+        /// if INFO = 0, Z contains the orthogonal matrix Z of the Schur
+        /// vectors of H.  If COMPZ = &#39;V&#39;, on entry Z must contain an
+        /// N-by-N matrix Q, which is assumed to be equal to the unit
+        /// matrix except for the submatrix Z(ILO:IHI,ILO:IHI). On exit,
+        /// if INFO = 0, Z contains Q*Z.
+        /// Normally Q is the orthogonal matrix generated by DORGHR
+        /// after the call to DGEHRD which formed the Hessenberg matrix
+        /// H. (The output value of Z when INFO &gt; 0 is given under
+        /// the description of INFO below.)
+        /// </param>
+        /// <param name="ldz">
+        /// [in] LDZ is INTEGER.
+        /// The leading dimension of the array Z.  if COMPZ = &#39;I&#39; or
+        /// COMPZ = &#39;V&#39;, then LDZ &gt;= MAX(1,N).  Otherwise, LDZ &gt;= 1.
+        /// </param>
+        /// <returns>
+        /// = 0:  successful exit
+        /// &lt; 0:  if INFO = -i, the i-th argument had an illegal
+        /// value
+        /// &gt; 0:  if INFO = i, DHSEQR failed to compute all of
+        /// the eigenvalues.  Elements 1:ilo-1 and i+1:n of WR
+        /// and WI contain those eigenvalues which have been
+        /// successfully computed.  (Failures are rare.)
+        /// 
+        /// If INFO &gt; 0 and JOB = &#39;E&#39;, then on exit, the
+        /// remaining unconverged eigenvalues are the eigen-
+        /// values of the upper Hessenberg matrix rows and
+        /// columns ILO through INFO of the final, output
+        /// value of H.
+        /// 
+        /// If INFO &gt; 0 and JOB   = &#39;S&#39;, then on exit
+        /// 
+        /// (*)  (initial value of H)*U  = U*(final value of H)
+        /// 
+        /// where U is an orthogonal matrix.  The final
+        /// value of H is upper Hessenberg and quasi-triangular
+        /// in rows and columns INFO+1 through IHI.
+        /// 
+        /// If INFO &gt; 0 and COMPZ = &#39;V&#39;, then on exit
+        /// 
+        /// (final value of Z)  =  (initial value of Z)*U
+        /// 
+        /// where U is the orthogonal matrix in (*) (regard-
+        /// less of the value of JOB.)
+        /// 
+        /// If INFO &gt; 0 and COMPZ = &#39;I&#39;, then on exit
+        /// (final value of Z)  = U
+        /// where U is the orthogonal matrix in (*) (regard-
+        /// less of the value of JOB.)
+        /// 
+        /// If INFO &gt; 0 and COMPZ = &#39;N&#39;, then Z is not
+        /// accessed.
+        /// </returns>
+        /// <remarks>
+        /// <para>
+        ///             Default values supplied by
+        ///             ILAENV(ISPEC,&#39;DHSEQR&#39;,JOB(:1)//COMPZ(:1),N,ILO,IHI,LWORK).
+        ///             It is suggested that these defaults be adjusted in order
+        ///             to attain best performance in each particular
+        ///             computational environment.
+        /// </para>
+        /// <para>
+        ///            ISPEC=12: The DLAHQR vs DLAQR0 crossover point.
+        ///                      Default: 75. (Must be at least 11.)
+        /// </para>
+        /// <para>
+        ///            ISPEC=13: Recommended deflation window size.
+        ///                      This depends on ILO, IHI and NS.  NS is the
+        ///                      number of simultaneous shifts returned
+        ///                      by ILAENV(ISPEC=15).  (See ISPEC=15 below.)
+        ///                      The default for (IHI-ILO+1) &lt;= 500 is NS.
+        ///                      The default for (IHI-ILO+1) &gt;  500 is 3*NS/2.
+        /// </para>
+        /// <para>
+        ///            ISPEC=14: Nibble crossover point. (See IPARMQ for
+        ///                      details.)  Default: 14% of deflation window
+        ///                      size.
+        /// </para>
+        /// <para>
+        ///            ISPEC=15: Number of simultaneous shifts in a multishift
+        ///                      QR iteration.
+        /// </para>
+        /// <para>
+        ///                      If IHI-ILO+1 is ...
+        /// </para>
+        /// <para>
+        ///                      greater than      ...but less    ... the
+        ///                      or equal to ...      than        default is
+        /// </para>
+        /// <para>
+        ///                           1               30          NS =   2(+)
+        ///                          30               60          NS =   4(+)
+        ///                          60              150          NS =  10(+)
+        ///                         150              590          NS =  **
+        ///                         590             3000          NS =  64
+        ///                        3000             6000          NS = 128
+        ///                        6000             infinity      NS = 256
+        /// </para>
+        /// <para>
+        ///                  (+)  By default some or all matrices of this order
+        ///                       are passed to the implicit double shift routine
+        ///                       DLAHQR and this parameter is ignored.  See
+        ///                       ISPEC=12 above and comments in IPARMQ for
+        ///                       details.
+        /// </para>
+        /// <para>
+        ///                 (**)  The asterisks (**) indicate an ad-hoc
+        ///                       function of N increasing from 10 to 64.
+        /// </para>
+        /// <para>
+        ///            ISPEC=16: Select structured matrix multiply.
+        ///                      If the number of simultaneous shifts (specified
+        ///                      by ISPEC=15) is less than 14, then the default
+        ///                      for ISPEC=16 is 0.  Otherwise the default for
+        ///                      ISPEC=16 is 2.
+        /// </para>
+        /// </remarks>
+        [DllImport(OpenBlas.LibraryName, EntryPoint = "LAPACKE_dhseqr", CallingConvention = CallingConvention.Cdecl)]
+        public static extern unsafe LapackInfo Dhseqr(
+            MatrixLayout matrixLayout,
+            char job,
+            char compz,
+            int n,
+            int ilo,
+            int ihi,
+            double* h,
+            int ldh,
+            double* wr,
+            double* wi,
+            double* z,
+            int ldz);
+    }
+}
