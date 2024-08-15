@@ -51,7 +51,7 @@ namespace OpenBlasSharp
         /// [in] A is REAL array, dimension.
         /// (LDA,M) if SIDE = &#39;L&#39;,
         /// (LDA,N) if SIDE = &#39;R&#39;
-        /// Part of the data structure to represent Q as returned by DGELQ.
+        /// Part of the data structure to represent Q as returned by SGELQ.
         /// </param>
         /// <param name="lda">
         /// [in] LDA is INTEGER.
